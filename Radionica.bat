@@ -1,0 +1,1 @@
+newman run ../tests/VideoGameDatabasev2.postman_collection.json -e ../env/Local.postman_environment.json -d ../data/VideoGameDatabase.Local.Data.json --reporters cli,htmlextra --reporter-htmlextra-logs --reporter-htmlextra-export ../report/Radionica/Report.html --reporter-htmlextra-title "Postman radionica, All tests" --reporter-htmlextra-titleSize 4
