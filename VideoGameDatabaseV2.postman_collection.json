@@ -55,7 +55,9 @@
 									"\t\tvar testSession = [",
 									"\t\t\t\"Get List of all Video Games\",",
 									"            \"Add a new video game\",",
-									"\t\t\t\"Delete a video game\"",
+									"            \"Get a single video game by ID\",",
+									"            \"Update a video game\",",
+									"            \"Delete a video game\"",
 									"\t\t];",
 									"\t\tbreak;",
 									"\tcase \"Core\":",
@@ -231,6 +233,167 @@
 					"response": []
 				},
 				{
+					"name": "Get a single video game by ID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var body = JSON.parse(responseBody);\r",
+									"\r",
+									"//response validations\r",
+									"pm.test(\"Status code is 200\", function () {\r",
+									"\tpm.response.to.have.status(200);\r",
+									"});\r",
+									"pm.test(\"Response schema is correct\", function () {\r",
+									"\tpm.response.to.have.jsonSchema(pm.environment.get(\"videoGameSchema\"));\r",
+									"});\r",
+									"pm.test(\"Video game having requested ID is returned\", function () {\r",
+									"\tpm.expect(body.id).to.be.eql(pm.environment.get(\"maxID\"));\r",
+									"});\r",
+									"\r",
+									"//clean up\r",
+									"if (pm.response.code === 200) {\r",
+									"\teval(globals.videoGameDelete)();\r",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"eval(globals.videoGameCreate)();"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{url}}:{{port}}/app/videogames/{{maxID}}",
+							"host": [
+								"{{url}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								"app",
+								"videogames",
+								"{{maxID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update a video game",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"eval(globals.videoGameCreate)();"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"//response validations\r",
+									"pm.test(\"Status code is 200\", function () {\r",
+									"\tpm.response.to.have.status(200);\r",
+									"});\r",
+									"    \r",
+									"pm.test(\"Video Game ID is correct\", () => {\r",
+									"    let requestBodyID = JSON.parse(request.data).id;\r",
+									"    let responseBodyID = JSON.parse(responseBody).id;\r",
+									"    pm.expect(responseBodyID).to.eql(requestBodyID);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Video Game name is correct\", () => {\r",
+									"    let requestBodyName = JSON.parse(request.data).name;\r",
+									"    let responseBodyName = JSON.parse(responseBody).name;\r",
+									"    pm.expect(responseBodyName).to.eql(requestBodyName);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Video Game release date is correct\", () => {\r",
+									"    let requestBodyReleaseDate = JSON.parse(request.data).releaseDate;\r",
+									"    let responseBodyReleaseDate = JSON.parse(responseBody).releaseDate;\r",
+									"    pm.expect(responseBodyReleaseDate).to.eql(requestBodyReleaseDate);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Video Game review score is correct\", () => {\r",
+									"    let requestBodyReviewScore = JSON.parse(request.data).reviewScore;\r",
+									"    let responseBodyReviewScore = JSON.parse(responseBody).reviewScore;\r",
+									"    pm.expect(responseBodyReviewScore).to.eql(requestBodyReviewScore);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Video Game category is correct\", () => {\r",
+									"    let requestBodyCategory = JSON.parse(request.data).category;\r",
+									"    let responseBodyCategory = JSON.parse(responseBody).category;\r",
+									"    pm.expect(responseBodyCategory).to.eql(requestBodyCategory);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Video Game rating is correct\", () => {\r",
+									"    let requestBodyRating = JSON.parse(request.data).rating;\r",
+									"    let responseBodyRating = JSON.parse(responseBody).rating;\r",
+									"    pm.expect(responseBodyRating).to.eql(requestBodyRating);\r",
+									"});\r",
+									"\r",
+									"//clean up\r",
+									"if (pm.response.code === 200) {\r",
+									"\teval(globals.videoGameDelete)();\r",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"id\": {{maxID}},\r\n  \"name\": \"New game\",\r\n  \"releaseDate\": {{videoGameReleaseDate}},\r\n  \"reviewScore\": 91,\r\n  \"category\": \"Action\",\r\n  \"rating\": \"99+\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}:{{port}}/app/videogames/{{maxID}}",
+							"host": [
+								"{{url}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								"app",
+								"videogames",
+								"{{maxID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "Delete a video game",
 					"event": [
 						{
@@ -356,6 +519,43 @@
 					"\t}]",
 					"};",
 					"pm.environment.set(\"videoGamesListSchema\", videoGamesListSchema);",
+					"",
+					"//************************************************************************************************",
+					"// Schema for 'Get List for concrete Video Game' *************************************************",
+					"//************************************************************************************************",
+					"const videoGameSchema = ",
+					"{",
+					"    \"type\": \"object\",",
+					"    \"properties\": {",
+					"        \"id\": {",
+					"            \"type\": \"integer\"",
+					"        },",
+					"        \"name\": {",
+					"            \"type\": \"string\"",
+					"        },",
+					"        \"releaseDate\": {",
+					"            \"type\": \"string\"",
+					"        },",
+					"        \"reviewScore\": {",
+					"            \"type\": \"integer\"",
+					"        },",
+					"        \"category\": {",
+					"            \"type\": \"string\"",
+					"        },",
+					"        \"rating\": {",
+					"            \"type\": \"string\"",
+					"        }",
+					"    },",
+					"    \"required\": [",
+					"        \"id\",",
+					"        \"name\",",
+					"        \"releaseDate\",",
+					"        \"reviewScore\",",
+					"        \"category\",",
+					"        \"rating\"",
+					"    ]",
+					"};",
+					"pm.environment.set(\"videoGameSchema\", videoGameSchema);",
 					"",
 					"postman.setGlobalVariable(\"sessionInit\", (testSession, sessionName) => {",
 					"\t//session init section",
